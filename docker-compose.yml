@@ -1,0 +1,7 @@
+services:
+  mock-api-server:
+    build: .
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./app:/app  # Optional: For live code updates without rebuilding

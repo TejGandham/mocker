@@ -2,34 +2,37 @@ name: Run Tests with Coverage
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  test:
+  test-and-upload-coverage:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pytest pytest-cov
 
       - name: Run Tests with Coverage
         run: |
-          pytest --cov=app --cov-report=xml --cov-report=html
+          pytest --cov=app tests/
 
-      - name: Upload Coverage Report
-        if: success() # Only upload if the tests pass
-        uses: codecov/codecov-action@v2
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
         with:
-          file: ./coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true

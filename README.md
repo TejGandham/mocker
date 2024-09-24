@@ -1,5 +1,4 @@
 [![codecov](https://codecov.io/github/TejGandham/mocker/branch/main/graph/badge.svg?token=MJV2T634F4)](https://codecov.io/github/TejGandham/mocker)
-https://codecov.io/github/TejGandham/mocker/graphs/sunburst.svg?token=MJV2T634F4
 # Mocker
 
 A simple **mock API server** built with **Python FastAPI** that logs incoming API requests. Useful for QA environments to verify that your service under test is correctly interacting with external APIs, especially when those external services might not be reliably available.

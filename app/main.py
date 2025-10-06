@@ -9,10 +9,12 @@ app = FastAPI()
 # Dictionary to store mock responses with regex patterns as keys
 mock_responses = {}
 
+
 # Pydantic model for mock response creation
 class MockResponse(BaseModel):
     path_template: str
     response: dict
+
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
@@ -20,7 +22,7 @@ async def log_requests(request: Request, call_next):
     print(f"Headers: {dict(request.headers)}")
 
     body = await request.body()
-    body_str = body.decode('utf-8')
+    body_str = body.decode("utf-8")
 
     try:
         body_json = json.loads(body_str)
@@ -36,27 +38,27 @@ async def log_requests(request: Request, call_next):
 
     return response
 
+
 @app.post("/mock-response")
 async def create_mock_response(mock_response: MockResponse):
     # Use raw paths without escaping that start with a slash
-    regex_pattern = re.escape(mock_response.path_template).replace(r'\{\}', r'.*') 
-    if not regex_pattern.startswith('^'):
-        regex_pattern = '^' + regex_pattern  # Ensure it matches the start
-    regex_pattern += r'$'  # Ensure it matches the end
+    regex_pattern = re.escape(mock_response.path_template).replace(r"\{\}", r".*")
+    if not regex_pattern.startswith("^"):
+        regex_pattern = "^" + regex_pattern  # Ensure it matches the start
+    regex_pattern += r"$"  # Ensure it matches the end
 
     mock_responses[regex_pattern] = json.dumps(mock_response.response)
     print(f"Registered mock response for pattern: {regex_pattern}")
     return {"message": f"Mock response set for path: {mock_response.path_template}"}
 
 
-
 @app.api_route("/{path_name:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
 async def catch_all(request: Request, path_name: str):
     print(f"Checking path: {path_name} against registered patterns")
-    
+
     # Handle leading slash if necessary
-    if not path_name.startswith('/'):
-        path_name = '/' + path_name  
+    if not path_name.startswith("/"):
+        path_name = "/" + path_name
 
     for pattern, mock_response in mock_responses.items():
         print(f"Trying pattern: {pattern}")
@@ -66,6 +68,7 @@ async def catch_all(request: Request, path_name: str):
 
     response = {"message": "Request received and logged."}
     return response
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000)

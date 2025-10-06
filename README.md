@@ -34,7 +34,7 @@ A simple **mock API server** built with **Python FastAPI** that logs incoming AP
 ### Prerequisites
 
 - **Docker** and **Docker Compose** installed on your machine.
-- **Python 3.7+** (if you wish to run without Docker).
+- **Python 3.13+** and **uv** (if you wish to run without Docker).
 
 ### Installation
 
@@ -50,10 +50,10 @@ A simple **mock API server** built with **Python FastAPI** that logs incoming AP
 2. **Build and Run the Docker Container**
 
    ```bash
-   docker-compose up --build
+   docker compose up --build
    ```
 
-   This command builds the Docker image and starts the mock API server on port `8000`.
+   This command builds the Docker image and starts the mock API server on port `8001`.
 
 #### Running Locally Without Docker
 
@@ -64,23 +64,22 @@ A simple **mock API server** built with **Python FastAPI** that logs incoming AP
    cd mocker
    ```
 
-2. **Create a Virtual Environment (Optional but Recommended)**
+2. **Install uv** (if not already installed)
 
    ```bash
-   python3 -m venv venv
-   source venv/bin/activate
+   curl -LsSf https://astral.sh/uv/install.sh | sh
    ```
 
 3. **Install Dependencies**
 
    ```bash
-   pip install -r requirements.txt
+   uv sync
    ```
 
 4. **Run the Server**
 
    ```bash
-   uvicorn app.main:app --host 0.0.0.0 --port 8000
+   uv run uvicorn app.main:app --host 0.0.0.0 --port 8001
    ```
 
 ## Usage
@@ -90,7 +89,7 @@ A simple **mock API server** built with **Python FastAPI** that logs incoming AP
 **Send a Request Using `curl`:**
 
 ```bash
-curl -X POST "http://localhost:8000/test/endpoint" \
+curl -X POST "http://localhost:8001/test/endpoint" \
      -H "Content-Type: application/json" \
      -d '{"name": "John Doe", "age": 30}'
 ```
@@ -104,8 +103,8 @@ Request received and logged.
 **Server Logs:**
 
 ```
-Received POST request for URL: http://localhost:8000/test/endpoint
-Headers: {'host': 'localhost:8000', 'user-agent': 'curl/7.68.0', 'accept': '*/*', 'content-type': 'application/json', 'content-length': '34'}
+Received POST request for URL: http://localhost:8001/test/endpoint
+Headers: {'host': 'localhost:8001', 'user-agent': 'curl/7.68.0', 'accept': '*/*', 'content-type': 'application/json', 'content-length': '34'}
 Body:
 {
     "name": "John Doe",
@@ -121,7 +120,7 @@ You can configure the server to return custom responses for specific path templa
 **Send a POST Request to `/mock-response`:**
 
 ```bash
-curl -X POST "http://localhost:8000/mock-response" \
+curl -X POST "http://localhost:8001/mock-response" \
      -H "Content-Type: application/json" \
      -d '{
            "path_template": "/user/{}/details",
@@ -143,7 +142,7 @@ After setting the mock response, any requests matching the `path_template` will 
 **Send a Request to a Matching Path:**
 
 ```bash
-curl -X GET "http://localhost:8000/user/123/details"
+curl -X GET "http://localhost:8001/user/123/details"
 ```
 
 **Expected Response:**
@@ -157,7 +156,7 @@ curl -X GET "http://localhost:8000/user/123/details"
 **Send Another Request with a Different Parameter:**
 
 ```bash
-curl -X GET "http://localhost:8000/user/XYZ/details"
+curl -X GET "http://localhost:8001/user/XYZ/details"
 ```
 
 **Expected Response:**
@@ -170,7 +169,7 @@ curl -X GET "http://localhost:8000/user/XYZ/details"
 
 ### Configuring Your Service Under Test
 
-Point your service under test to the mock API server by changing the API endpoints to `http://localhost:8000` (or the appropriate network address if running in a containerized environment).
+Point your service under test to the mock API server by changing the API endpoints to `http://localhost:8001` (or the appropriate network address if running in a containerized environment).
 
 ## Configuration
 
@@ -184,9 +183,11 @@ Point your service under test to the mock API server by changing the API endpoin
 mocker/
 ├── app/
 │   └── main.py          # FastAPI application
+├── tests/               # Test files
 ├── Dockerfile           # Docker image definition
 ├── docker-compose.yml   # Docker Compose configuration
-└── requirements.txt     # Python dependencies
+├── pyproject.toml       # Project metadata and dependencies
+└── uv.lock              # Locked dependency versions
 ```
 
 ## Contributing
@@ -220,6 +221,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- [FastAPI](https://fastapi.tiangolo.com/) - Modern, fast web framework for building APIs with Python 3.7+.
+- [FastAPI](https://fastapi.tiangolo.com/) - Modern, fast web framework for building APIs with Python 3.13+.
 - [Uvicorn](https://www.uvicorn.org/) - A lightning-fast ASGI server implementation.
+- [uv](https://docs.astral.sh/uv/) - An extremely fast Python package installer and resolver.
 - [Docker](https://www.docker.com/) - Platform for developing, shipping, and running applications in containers.
